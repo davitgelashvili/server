@@ -1,0 +1,26 @@
+backend/
+├── index.js
+├── db.js
+├── .env
+├── routes/
+│   ├── auth.routes.js
+│   ├── blog.routes.js
+│   └── index.js
+├── controllers/
+│   ├── auth
+│   │   ├── register.js
+│   │   ├── login.js
+│   │   ├── refresh.js
+│   │   ├── logout.js
+│   │   ├── me.js
+│   │   └── index.js
+│   └── event
+│       ├── create.js
+│       ├── listByUser.js
+│       ├── list.js
+│       ├── view.js
+│       └── index.js
+├── middlewares/
+│   └── auth.middleware.js
+└── utils/
+    └── tokens.js
