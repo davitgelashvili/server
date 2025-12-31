@@ -1,5 +1,3 @@
-// controllers/event/index.js
-
 'use strict';
 
 const create = require('./create');

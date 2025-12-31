@@ -4,7 +4,7 @@ backend/
 ├── .env
 ├── routes/
 │   ├── auth.routes.js
-│   ├── blog.routes.js
+│   ├── event.routes.js
 │   └── index.js
 ├── controllers/
 │   ├── auth
@@ -19,6 +19,9 @@ backend/
 │       ├── listByUser.js
 │       ├── list.js
 │       ├── view.js
+|       ├── ticketsBuy.js
+│       ├── ticketsList.js
+│       ├── ticketsSetup.js
 │       └── index.js
 ├── middlewares/
 │   └── auth.middleware.js

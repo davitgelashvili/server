@@ -18,7 +18,8 @@ const NODE_ENV = process.env.NODE_ENV || 'development';
 
 // ✅ React origins (dev + prod)
 const ALLOWED_ORIGINS = [
-  'http://localhost:3000', // React dev
+  'http://localhost:3000',
+  'http://localhost:3001',
   // 'https://yourdomain.com' // prod domain (დამატებ მერე)
 ];
 

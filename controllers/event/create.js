@@ -24,6 +24,7 @@ function isNonEmpty(s, min = 3) {
 }
 
 async function create(req, res) {
+    console.log(req)
     try {
         const ownerUserId = req.user.userId;
 
