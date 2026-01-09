@@ -1,21 +1,34 @@
-// routes/event.routes.js
-
 'use strict';
 
 const express = require('express');
 const router = express.Router();
 
 const { requireAuth } = require('../middlewares/auth.middleware');
-const event = require('../controllers/event');
+const showCtrl = require('../controllers/show');
 
-router.get('/', event.list);
-router.get('/user/:userId', requireAuth, event.listByUser);
-router.get('/:eventId', event.view);
+// 🔐 ყველაფერი ქვემოთ დაცულია
+router.use(requireAuth);
 
-router.post('/', requireAuth, event.create);
+// HUD
+router.get('/hud', showCtrl.hud.list);
+router.post('/hud', showCtrl.hud.add);
+router.get('/hud/:id', showCtrl.hud.getById);
+router.put('/hud/:id', showCtrl.hud.update);
 
-router.post('/:eventId/tickets/setup', requireAuth, event.ticketsSetup);
-router.get('/:eventId/tickets', event.ticketsList);
-router.post('/:eventId/tickets/buy', requireAuth, event.ticketsBuy);
+// EVENT
+router.get('/event', showCtrl.event.list);
+router.post('/event', showCtrl.event.add);
+router.get('/event/:id', showCtrl.event.getById);
+router.put('/event/:id', showCtrl.event.update);
+
+// BATCH
+router.get('/batch', showCtrl.batch.list);
+router.post('/batch', showCtrl.batch.add);
+router.put('/batch/:id', showCtrl.batch.update);
+router.delete('/batch/:id', showCtrl.batch.delete);
+
+// EXPORT
+router.get('/export/tkt', showCtrl.export.tkt);
+router.get('/export/biletebi', showCtrl.export.biletebi);
 
 module.exports = router;

@@ -1,7 +1,7 @@
 'use strict';
 
 const crypto = require('crypto');
-const { pool } = require('../../db');
+const { pool } = require('../../../db');
 
 function generateEventId() {
     return 'e_' + crypto.randomBytes(9).toString('hex');

@@ -9,7 +9,7 @@ const eventRoutes = require('./event.routes');
 
 // routes
 router.use('/auth', authRoutes);
-router.use('/events', eventRoutes);
+router.use('', eventRoutes);
 
 
 module.exports = router;

@@ -2,7 +2,7 @@
 
 'use strict';
 
-const { pool } = require('../../db');
+const { pool } = require('../../../db');
 
 function isInt(n) {
     return Number.isInteger(n);

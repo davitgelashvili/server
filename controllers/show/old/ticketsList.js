@@ -2,7 +2,7 @@
 
 'use strict';
 
-const { pool } = require('../../db');
+const { pool } = require('../../../db');
 
 async function ticketsList(req, res) {
     try {

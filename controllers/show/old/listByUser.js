@@ -1,9 +1,11 @@
 'use strict';
 
-const { pool } = require('../../db');
+const { pool } = require('../../../db');
 
-async function list(req, res) {
+async function listByUser(req, res) {
     try {
+        const { userId } = req.params;
+
         const [rows] = await pool.execute(
             `SELECT
         event_id,
@@ -16,7 +18,9 @@ async function list(req, res) {
         cover,
         status
       FROM events
-      ORDER BY start_at DESC`
+      WHERE owner_user_id = ?
+      ORDER BY start_at DESC`,
+            [userId]
         );
 
         return res.json({ success: true, events: rows });
@@ -25,4 +29,4 @@ async function list(req, res) {
     }
 }
 
-module.exports = list;
+module.exports = listByUser;

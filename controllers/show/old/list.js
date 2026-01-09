@@ -1,11 +1,9 @@
 'use strict';
 
-const { pool } = require('../../db');
+const { pool } = require('../../../db');
 
-async function view(req, res) {
+async function list(req, res) {
     try {
-        const { eventId } = req.params;
-
         const [rows] = await pool.execute(
             `SELECT
         event_id,
@@ -18,19 +16,13 @@ async function view(req, res) {
         cover,
         status
       FROM events
-      WHERE event_id = ?
-      LIMIT 1`,
-            [eventId]
+      ORDER BY start_at DESC`
         );
 
-        if (!rows.length) {
-            return res.status(404).json({ success: false });
-        }
-
-        return res.json({ success: true, event: rows[0] });
+        return res.json({ success: true, events: rows });
     } catch (e) {
         return res.status(500).json({ success: false });
     }
 }
 
-module.exports = view;
+module.exports = list;
