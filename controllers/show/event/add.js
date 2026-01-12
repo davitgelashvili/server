@@ -8,46 +8,37 @@ module.exports = async (req, res) => {
         const { userId } = req.user;
         const { hud_id, title, description, start_datetime, end_datetime, min_price, max_price } = req.body;
 
-        if (!hud_id || !start_datetime || !end_datetime || min_price == null || max_price == null) {
-            return res.status(400).json({ success: false, message: 'Required fields missing' });
+        if (!hud_id || !title || !start_datetime || !end_datetime) {
+            return res.status(400).json({ success: false, message: 'Missing required fields' });
         }
-
-        // ✅ HUD ownership check
-        const [hudRows] = await pool.query(
-            `SELECT title, description FROM show_hud WHERE id = ? AND user_id = ?`,
-            [hud_id, userId]
-        );
-
-        if (!hudRows.length) {
-            return res.status(404).json({ success: false, message: 'HUD not found or not owned by user' });
-        }
-
-        const hud = hudRows[0];
 
         const id = generateEventId();
-        const eventTitle = title || hud.title;
-        const eventDescription = description || hud.description;
 
+        // Event insert
         await pool.query(
-            `INSERT INTO show_event 
+            `INSERT INTO show_event
              (id, hud_id, title, description, start_datetime, end_datetime, min_price, max_price, created_at, updated_at)
              VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
-            [id, hud_id, eventTitle, eventDescription, start_datetime, end_datetime, min_price, max_price]
+            [id, hud_id, title, description || '', start_datetime, end_datetime, min_price || 0, max_price || 0]
+        );
+
+        // HUD-ის start/end განახლება (end = ბოლო Event-ის start_datetime)
+        await pool.query(
+            `UPDATE show_hud
+             SET start_datetime = (
+                 SELECT MIN(start_datetime) FROM show_event WHERE hud_id = ?
+             ),
+                 end_datetime = (
+                 SELECT MAX(start_datetime) FROM show_event WHERE hud_id = ?
+             )
+             WHERE id = ?`,
+            [hud_id, hud_id, hud_id]
         );
 
         res.json({
             success: true,
-            event: {
-                id,
-                hud_id,
-                title: eventTitle,
-                description: eventDescription,
-                start_datetime,
-                end_datetime,
-                min_price,
-                max_price,
-            },
-            message: 'Event created successfully',
+            event: { id, hud_id, title, description, start_datetime, end_datetime, min_price, max_price },
+            message: 'Event created successfully and HUD dates updated'
         });
 
     } catch (err) {

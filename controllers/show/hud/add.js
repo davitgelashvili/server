@@ -15,8 +15,8 @@ module.exports = async (req, res) => {
         const id = generateHudId();
 
         await pool.query(
-            `INSERT INTO show_hud (id, user_id, title, slug, description, cover)
-             VALUES (?, ?, ?, ?, ?, ?)`,
+            `INSERT INTO show_hud (id, user_id, title, slug, description, cover, start_datetime, end_datetime)
+       VALUES (?, ?, ?, ?, ?, ?, NULL, NULL)`,
             [id, userId, title, slug || null, description || null, cover || null]
         );
 
@@ -27,7 +27,9 @@ module.exports = async (req, res) => {
                 title,
                 slug: slug || null,
                 description: description || '',
-                cover: cover || null
+                cover: cover || null,
+                start_datetime: null,
+                end_datetime: null,
             }
         });
     } catch (err) {

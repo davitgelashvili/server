@@ -8,7 +8,7 @@ module.exports = async (req, res) => {
         const { id } = req.params;
 
         const [rows] = await pool.query(
-            `SELECT id, title, slug, description, cover, created_at
+            `SELECT id, title, slug, description, cover, start_datetime, end_datetime, created_at, updated_at
              FROM show_hud
              WHERE id = ? AND user_id = ?`,
             [id, userId]
@@ -18,12 +18,20 @@ module.exports = async (req, res) => {
             return res.status(404).json({ success: false, message: 'HUD not found' });
         }
 
+        const hud = rows[0];
+
         res.json({
             success: true,
             hud: {
-                ...rows[0],
-                description: rows[0].description || '',
-                cover: rows[0].cover || null
+                id: hud.id,
+                title: hud.title,
+                slug: hud.slug || null,
+                description: hud.description || '',
+                cover: hud.cover || null,
+                start_datetime: hud.start_datetime,
+                end_datetime: hud.end_datetime,
+                created_at: hud.created_at,
+                updated_at: hud.updated_at
             }
         });
     } catch (err) {

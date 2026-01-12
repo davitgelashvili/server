@@ -14,8 +14,8 @@ module.exports = async (req, res) => {
 
         const [result] = await pool.query(
             `UPDATE show_hud
-             SET title = ?, slug = ?, description = ?, cover = ?
-             WHERE id = ? AND user_id = ?`,
+       SET title = ?, slug = ?, description = ?, cover = ?
+       WHERE id = ? AND user_id = ?`,
             [title, slug || null, description || null, cover || null, id, userId]
         );
 
