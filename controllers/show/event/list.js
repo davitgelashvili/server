@@ -5,24 +5,29 @@ const { pool } = require('../../../db');
 module.exports = async (req, res) => {
     try {
         const { userId } = req.user;
-        const { hud_id } = req.query;
+        const { id: hudId } = req.params;
 
-        let sql = `
-            SELECT e.*
-            FROM show_event e
-            JOIN show_hud h ON e.hud_id = h.id
-            WHERE h.user_id = ?
-        `;
-        const params = [userId];
-
-        if (hud_id) {
-            sql += ' AND e.hud_id = ?';
-            params.push(hud_id);
+        if (!hudId) {
+            return res.status(400).json({
+                success: false,
+                message: 'HUD id is required'
+            });
         }
 
-        sql += ' ORDER BY e.start_datetime ASC';
+        const sql = `
+            SELECT e.*
+            FROM show_event e
+            WHERE e.hud_id = ?
+              AND EXISTS (
+                  SELECT 1
+                  FROM show_hud h
+                  WHERE h.id = ?
+                    AND h.user_id = ?
+              )
+            ORDER BY e.start_datetime ASC
+        `;
 
-        const [rows] = await pool.query(sql, params);
+        const [rows] = await pool.query(sql, [hudId, hudId, userId]);
 
         res.json({
             success: true,

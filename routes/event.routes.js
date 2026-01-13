@@ -16,7 +16,7 @@ router.get('/hud/:id', showCtrl.hud.getById);
 router.put('/hud/:id', showCtrl.hud.update);
 
 // EVENT
-router.get('/event', showCtrl.event.list);
+router.get('/hud/:id/event', showCtrl.event.list);
 router.post('/event', showCtrl.event.add);
 router.get('/event/:id', showCtrl.event.getById);
 router.put('/event/:id', showCtrl.event.update);
