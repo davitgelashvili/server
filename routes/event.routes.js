@@ -22,7 +22,7 @@ router.get('/event/:id', showCtrl.event.getById);
 router.put('/event/:id', showCtrl.event.update);
 
 // BATCH
-router.get('/batch', showCtrl.batch.list);
+router.get('/event/:event_id/batch', showCtrl.batch.list);
 router.post('/batch', showCtrl.batch.add);
 router.put('/batch/:id', showCtrl.batch.update);
 router.delete('/batch/:id', showCtrl.batch.delete);
