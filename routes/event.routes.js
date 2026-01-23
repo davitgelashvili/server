@@ -27,8 +27,4 @@ router.post('/batch', showCtrl.batch.add);
 router.put('/batch/:id', showCtrl.batch.update);
 router.delete('/batch/:id', showCtrl.batch.delete);
 
-// EXPORT
-router.get('/export/tkt', showCtrl.export.tkt);
-router.get('/export/biletebi', showCtrl.export.biletebi);
-
 module.exports = router;

@@ -6,6 +6,8 @@ backend/
 ├── routes/
 │   ├── auth.routes.js
 │   ├── event.routes.js
+│   ├── export.routes.js
+│   ├── client.routes.js
 │   └── index.js
 
 ├── controllers/
@@ -15,6 +17,18 @@ backend/
 │   │   ├── refresh.js
 │   │   ├── logout.js
 │   │   ├── me.js
+│   │   └── index.js
+│   ├── export/
+│   │   ├── hudList.js
+│   │   ├── hudDetail.js
+│   │   └── tkt.js
+│   ├── client/ //ეს არის კლიენტი, სადაც იმპორტდება ივენთები და იყიდება ბილეთბი
+│   │   ├── hud
+│   │   │   ├── detail.js
+│   │   │   ├── index.js
+│   │   │   └── list.js
+│   │   ├── services
+│   │   │   └── tktExport.service.js
 │   │   └── index.js
 │   │
 │   └── show/
@@ -36,14 +50,11 @@ backend/
 │       │   ├─ update.js
 │       │   ├─ delete.js
 │       │   └── index.js
-│       ├── export/
-│       │   ├── tkt.js
-│       │   ├── biletebi.js
-│       │   └── index.js
 │       └─ index.js
 ├── middlewares/
-│   └── auth.middleware.js
-
+│   ├── auth.middleware.js
+│   └── tktApiKey.js
+│
 ├── utils/
 │   ├── tokens.js
 │   └── generateId.js
