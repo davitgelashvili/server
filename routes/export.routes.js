@@ -8,9 +8,9 @@ const apiKey = require('../middlewares/tktApiKey');
 const exportCtrl = require('../controllers/export/tkt');
 
 // 🔐 ყველაფერი ქვემოთ დაცულია
-router.use(apiKey);
+// router.use(apiKey);
 
 router.get('/hud', exportCtrl.hudList);
-router.get('/hud/:slug', exportCtrl.hudDetails);
+router.get('/hud/:hudId', exportCtrl.hudDetails);
 
 module.exports = router;

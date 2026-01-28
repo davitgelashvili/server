@@ -1,7 +1,6 @@
 'use strict';
 
 const { pool } = require('../../db');
-const formatForTkt = require('./tkt');
 
 module.exports = async (req, res) => {
     try {
@@ -9,9 +8,18 @@ module.exports = async (req, res) => {
 
         /** HUD */
         const [[hud]] = await pool.query(`
-            SELECT *
+            SELECT 
+                id,
+                user_id,
+                title,
+                slug,
+                description,
+                cover,
+                start_datetime,
+                end_datetime,
+                created_at
             FROM show_hud
-            WHERE id = ? AND is_public = 1
+            WHERE id = ?
         `, [hudId]);
 
         if (!hud) {
@@ -21,29 +29,60 @@ module.exports = async (req, res) => {
             });
         }
 
-        /** EVENTS (დღეები) */
+        /** EVENTS */
         const [events] = await pool.query(`
-            SELECT *
+            SELECT
+                id,
+                hud_id,
+                title,
+                description,
+                start_datetime,
+                end_datetime,
+                min_price,
+                max_price
             FROM show_event
             WHERE hud_id = ?
             ORDER BY start_datetime ASC
         `, [hudId]);
 
-        /** BATCHES (კალათები) */
-        const [batches] = await pool.query(`
-            SELECT b.*
-            FROM show_batch b
-            JOIN show_event e ON e.id = b.event_id
-            WHERE e.hud_id = ?
-            ORDER BY b.price ASC
-        `, [hudId]);
+        if (!events.length) {
+            return res.json({
+                success: true,
+                data: {
+                    ...hud,
+                    events: []
+                }
+            });
+        }
 
-        /** TKT FORMAT */
-        const response = formatForTkt(hud, events, batches);
+        /** BATCHES */
+        const eventIds = events.map(e => e.id);
+
+        const [batches] = await pool.query(`
+            SELECT
+                id,
+                event_id,
+                name,
+                price,
+                capacity,
+                sold_count
+            FROM show_batch
+            WHERE event_id IN (?)
+            ORDER BY price ASC
+        `, [eventIds]);
+
+        /** attach batches to events */
+        const eventsWithBatches = events.map(event => ({
+            ...event,
+            batches: batches.filter(b => b.event_id === event.id)
+        }));
 
         res.json({
             success: true,
-            data: response
+            data: {
+                ...hud,
+                events: eventsWithBatches
+            }
         });
     } catch (err) {
         console.error('HUD DETAIL EXPORT ERROR:', err);
