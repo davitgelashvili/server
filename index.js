@@ -21,7 +21,7 @@ const ALLOWED_ORIGINS = [
   'http://localhost:3000',
   'http://localhost:3001',
   // 'https://yourdomain.com' // prod domain (დამატებ მერე)
-];
+]; //გადავიტანოთ .env ფაილში პარამეტრები
 
 // ✅ CORS options
 const corsOptions = {
@@ -38,23 +38,19 @@ app.use(helmet());
 app.use(compression());
 app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 300 }));
 
-// ✅ CORS with credentials (cookies)
 app.use(cors(corsOptions));
 
-// ✅ Preflight (NO "*" to avoid path-to-regexp error)
 app.options(/.*/, cors(corsOptions));
-// ალტერნატივა: app.options(/.*/, cors(corsOptions));
 
 app.use(cookieParser());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-app.use(morgan(NODE_ENV === 'production' ? 'combined' : 'dev'));
+app.use(morgan(NODE_ENV === 'production' ? 'combined' : 'dev')); //შევცვალოთ როცა ბექენდის urls გადავიტტანთ .env ფაილში
 
 app.get('/health', (req, res) => res.json({ status: 'OK' }));
 app.use('/api', routes);
 
-// ✅ Error handler
 app.use((err, req, res, next) => {
   if (err && err.message === 'Not allowed by CORS') {
     return res.status(403).json({ success: false, message: 'CORS blocked' });
