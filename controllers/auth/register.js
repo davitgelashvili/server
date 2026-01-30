@@ -5,9 +5,6 @@ const crypto = require('crypto');
 const { pool } = require('../../db');
 
 const fs = require('fs')
-const multer = require('multer')
-const upload = multer({dest : '/uploads'})
-
 
 const {
     signAccessToken,
@@ -38,7 +35,8 @@ async function createUniqueUserId() {
 
 async function register(req, res) {
     try {
-        const { email, fullname, password, link, cover, status ,avatar } = req.body;
+        const { email, fullname, password, link, cover, status } = req.body;
+        const avatar = req.file
 
         if (!isEmail(email))
             return res.status(400).json({ success: false, message: 'Invalid email' });
@@ -73,18 +71,23 @@ async function register(req, res) {
             ]
         );
 
-        fs.readFile(avatar.path , async(err, data) => {
-
-            if(err) return res.status(500).send({ success: false, message: 'Invalid Image Format' }) ; //ავატარი თუ არ გვაქვს ან არავალიდური ფორმატიაქვს გვიბრუნებს 500 სტატუს კოდს
-            
-            try{
-                await pool.query('update users set avatar = ? where id = ?' , [data, userId]); //აინსერტებს ავატარს დატაბაზაში როგორც ბლობს
-                return res.status(200).json({success : true , message : 'Avatar Added Successfullyy'});
-            }catch(err){
-                return res.status(500).json({success: false , message : "Server error"})
+        let avatarBase64 = null;
+        if (avatar) {
+            try {
+                const data = await fs.promises.readFile(avatar.path);
+                await pool.query('UPDATE users SET avatar = ? WHERE user_id = ?', [data, userId]);
+                avatarBase64 = data.toString('base64');
+            } catch (err) {
+                console.error(err);
+                const defaultAvatarPath = path.join(__dirname, '../../public/avatar-default.svg');
+                const defaultAvatarBuffer = fs.readFileSync(defaultAvatarPath);
+                avatarBase64 = defaultAvatarBuffer.toString('base64');
             }
-    
-        })
+        } else {
+            const defaultAvatarPath = path.join(__dirname, '../../public/avatar-default.svg');
+            const defaultAvatarBuffer = fs.readFileSync(defaultAvatarPath);
+            avatarBase64 = defaultAvatarBuffer.toString('base64');
+        }
 
         const accessToken = signAccessToken({ userId });
         const refreshToken = signRefreshToken({ userId });
@@ -100,16 +103,6 @@ async function register(req, res) {
         );
 
         res.cookie('refresh_token', refreshToken, refreshCookieOptions());
-
-        let avatarBase64 = null;
-        
-        if(avatar){
-            avatarBase64 = avatar.toString('base64')
-        }else {
-            const defaultAvatar = path.join(__dirname, '../../public/avatar-default.svg')
-            const defaultAvatarBuffer = fs.readFileSync(defaultAvatar)
-            avatarBase64  = defaultAvatarBuffer.toString('base64')
-        }
 
         return res.status(201).json({
             success: true,

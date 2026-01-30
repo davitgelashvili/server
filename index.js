@@ -16,14 +16,10 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const NODE_ENV = process.env.NODE_ENV || 'development';
 
-// ✅ React origins (dev + prod)
-const ALLOWED_ORIGINS = [
-  'http://localhost:3000',
-  'http://localhost:3001',
-  // 'https://yourdomain.com' // prod domain (დამატებ მერე)
-]; //გადავიტანოთ .env ფაილში პარამეტრები
+// React origins (dev + prod)
+const ALLOWED_ORIGINS = process.env.ALLOWED_ORIGINS.split(',')
 
-// ✅ CORS options
+// CORS options
 const corsOptions = {
   origin: function (origin, cb) {
     // allow tools like Postman/no-origin requests
@@ -46,7 +42,7 @@ app.use(cookieParser());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-app.use(morgan(NODE_ENV === 'production' ? 'combined' : 'dev')); //შევცვალოთ როცა ბექენდის urls გადავიტტანთ .env ფაილში
+app.use(morgan(NODE_ENV === 'production' ? 'combined' : 'dev'));
 
 app.get('/health', (req, res) => res.json({ status: 'OK' }));
 app.use('/api', routes);
@@ -62,28 +58,3 @@ app.use((err, req, res, next) => {
 app.use((req, res) => res.status(404).json({ success: false, message: 'Route not found' }));
 
 app.listen(PORT, () => console.log(`✅ API running on :${PORT} [${NODE_ENV}]`));
-
-
-//test api call
-
-// const axios = require('axios');
-
-// const API_URL = 'http://localhost:5001/api/export';
-// const API_KEY = 'super_secret_key';
-
-// async function getHuds() {
-//     const { data } = await axios.get(`${API_URL}/hud`, {
-//         headers: { 'x-api-key': API_KEY }
-//     });
-//     console.log('HUDs:', data);
-// }
-
-// async function getHudDetail(slug) {
-//     const { data } = await axios.get(`${API_URL}/hud/${slug}`, {
-//         headers: { 'x-api-key': API_KEY }
-//     });
-//     console.log('HUD detail:', data);
-// }
-
-// // getHuds();
-// getHudDetail('h_d67b5')
