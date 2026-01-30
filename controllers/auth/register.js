@@ -36,7 +36,7 @@ async function createUniqueUserId() {
 async function register(req, res) {
     try {
         const { email, fullname, password, link, cover, status } = req.body;
-        const avatar = req.file
+        const avatar = req.file; //მულტერი რექვესტიდან იღებს ავატარის ფოტოს როგორც ფაილს
 
         if (!isEmail(email))
             return res.status(400).json({ success: false, message: 'Invalid email' });
@@ -71,19 +71,19 @@ async function register(req, res) {
             ]
         );
 
-        let avatarBase64 = null;
+        let avatarBase64 = null; //ავატარის ცვლადი base64 ფორმატში
         if (avatar) {
             try {
-                const data = await fs.promises.readFile(avatar.path);
-                await pool.query('UPDATE users SET avatar = ? WHERE user_id = ?', [data, userId]);
-                avatarBase64 = data.toString('base64');
-            } catch (err) {
+                const data = await fs.promises.readFile(avatar.path); //fs კითხულობს ავატარის ფოტოს და აბრუნებს პასუხს
+                await pool.query('UPDATE users SET avatar = ? WHERE user_id = ?', [data, userId]); 
+                avatarBase64 = data.toString('base64');//თუ ვალიდურია დატაბაზაში შეგვაქვს და ავატარის ცვლადს ვანიჭებს ამ მნიშვნელობას
+            } catch (err) {//თუ არავალიდურია (fs-მა თუ არ მიიღო ამ ტიპის იმეიჯი)ერრორს ვაბრუნებთ და ავატარის ფოტოდ დეფაულტ ფოტოს ვირჩევთ (/public/avatar-default.svg)
                 console.error(err);
                 const defaultAvatarPath = path.join(__dirname, '../../public/avatar-default.svg');
                 const defaultAvatarBuffer = fs.readFileSync(defaultAvatarPath);
                 avatarBase64 = defaultAvatarBuffer.toString('base64');
             }
-        } else {
+        } else {//თუ იუზერს არ ექნება ავატარის ფოტო არჩეული , ვიყენებთ დეფაულტ ავატარის ფოტოს
             const defaultAvatarPath = path.join(__dirname, '../../public/avatar-default.svg');
             const defaultAvatarBuffer = fs.readFileSync(defaultAvatarPath);
             avatarBase64 = defaultAvatarBuffer.toString('base64');
@@ -114,8 +114,8 @@ async function register(req, res) {
                 link: link || null,
                 cover: cover || null,
                 status : status || null,
-                avatar: avatarBase64 
-            }
+                avatar: avatarBase64 //ავატარის ფოტო base64 ფორმატში
+            }//როდესაც ყველა ინფორმაცია ვალიდური იქნება ფრონტენდზე დავაბრუნებთ ამ მონაცემებს
         });
     } catch (err) {
         return res.status(500).json({ success: false, message: 'Server error' });
