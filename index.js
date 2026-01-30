@@ -62,3 +62,28 @@ app.use((err, req, res, next) => {
 app.use((req, res) => res.status(404).json({ success: false, message: 'Route not found' }));
 
 app.listen(PORT, () => console.log(`✅ API running on :${PORT} [${NODE_ENV}]`));
+
+
+//test api call
+
+// const axios = require('axios');
+
+// const API_URL = 'http://localhost:5001/api/export';
+// const API_KEY = 'super_secret_key';
+
+// async function getHuds() {
+//     const { data } = await axios.get(`${API_URL}/hud`, {
+//         headers: { 'x-api-key': API_KEY }
+//     });
+//     console.log('HUDs:', data);
+// }
+
+// async function getHudDetail(slug) {
+//     const { data } = await axios.get(`${API_URL}/hud/${slug}`, {
+//         headers: { 'x-api-key': API_KEY }
+//     });
+//     console.log('HUD detail:', data);
+// }
+
+// // getHuds();
+// getHudDetail('h_d67b5')

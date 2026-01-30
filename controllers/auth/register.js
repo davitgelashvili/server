@@ -3,6 +3,12 @@
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 const { pool } = require('../../db');
+
+const fs = require('fs')
+const multer = require('multer')
+const upload = multer({dest : '/uploads'})
+
+
 const {
     signAccessToken,
     signRefreshToken,
@@ -32,7 +38,7 @@ async function createUniqueUserId() {
 
 async function register(req, res) {
     try {
-        const { email, fullname, password, link, cover } = req.body;
+        const { email, fullname, password, link, cover, status ,avatar } = req.body;
 
         if (!isEmail(email))
             return res.status(400).json({ success: false, message: 'Invalid email' });
@@ -54,7 +60,7 @@ async function register(req, res) {
         const passwordHash = await bcrypt.hash(password, 12);
 
         await pool.execute(
-            `INSERT INTO users (user_id, email, fullname, password_hash, link, cover)
+            `INSERT INTO users (user_id, email, fullname, password_hash, link, cover, status)
        VALUES (?, ?, ?, ?, ?, ?)`,
             [
                 userId,
@@ -62,9 +68,23 @@ async function register(req, res) {
                 fullname.trim(),
                 passwordHash,
                 link || null,
-                cover || null
+                cover || null,
+                status || null
             ]
         );
+
+        fs.readFile(avatar.path , async(err, data) => {
+
+            if(err) return res.status(500).send({ success: false, message: 'Invalid Image Format' }) ; //ავატარი თუ არ გვაქვს ან არავალიდური ფორმატიაქვს გვიბრუნებს 500 სტატუს კოდს
+            
+            try{
+                await pool.query('update users set avatar = ? where id = ?' , [data, userId]); //აინსერტებს ავატარს დატაბაზაში როგორც ბლობს
+                return res.status(200).json({success : true , message : 'Avatar Added Successfullyy'});
+            }catch(err){
+                return res.status(500).json({success: false , message : "Server error"})
+            }
+    
+        })
 
         const accessToken = signAccessToken({ userId });
         const refreshToken = signRefreshToken({ userId });
@@ -81,6 +101,16 @@ async function register(req, res) {
 
         res.cookie('refresh_token', refreshToken, refreshCookieOptions());
 
+        let avatarBase64 = null;
+        
+        if(avatar){
+            avatarBase64 = avatar.toString('base64')
+        }else {
+            const defaultAvatar = path.join(__dirname, '../../public/avatar-default.svg')
+            const defaultAvatarBuffer = fs.readFileSync(defaultAvatar)
+            avatarBase64  = defaultAvatarBuffer.toString('base64')
+        }
+
         return res.status(201).json({
             success: true,
             accessToken,
@@ -89,7 +119,9 @@ async function register(req, res) {
                 email,
                 fullname,
                 link: link || null,
-                cover: cover || null
+                cover: cover || null,
+                status : status || null,
+                avatar: avatarBase64 
             }
         });
     } catch (err) {
