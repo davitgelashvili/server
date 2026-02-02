@@ -6,8 +6,10 @@ const router = express.Router();
 const { requireAuth } = require('../middlewares/auth.middleware');
 const showCtrl = require('../controllers/show');
 
-// 🔐 ყველაფერი ქვემოთ დაცულია
+
+// ჩავანაცვლოთ ეს მიდლვეირი ადმინის/მოდერატორის ვალიდაცია დაცულობისთვის 
 router.use(requireAuth);
+
 
 // HUD
 router.get('/hud', showCtrl.hud.list);
