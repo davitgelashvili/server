@@ -14,8 +14,10 @@ router.use('/auth', authRoutes);
 
 
 //dashboard apis
-router.use('/v1', eventRoutes); //API ტიკეტები ან ბილეთები ჯისთვის , (დავამატოთ ვ2 ვერსია აქ მეორე საიტისტვის)
+router.use('/v1', eventRoutes); //API ტიკეტები ან ბილეთები ჯისთვის
+// (დავამატოთ ვ2 ვერსია აქ მეორე საიტისტვის)
 router.use('/dashboard', eventRoutes) //API ჩვენი პლატფორმისთვის
+
 
 // export api
 router.use('/export', exportRoutes);

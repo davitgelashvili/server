@@ -11,13 +11,20 @@ router.use(requireAuth);
 
 // HUD
 router.get('/hud', showCtrl.hud.list);
+router.post('/hud', showCtrl.hud.add);
 router.get('/hud/:id', showCtrl.hud.getById);
+router.put('/hud/:id', showCtrl.hud.update);
 
 // EVENT
 router.get('/hud/:id/event', showCtrl.event.list);
+router.post('/event', showCtrl.event.add);
 router.get('/event/:id', showCtrl.event.getById);
+router.put('/event/:id', showCtrl.event.update);
 
 // BATCH
 router.get('/event/:event_id/batch', showCtrl.batch.list);
+router.post('/batch', showCtrl.batch.add);
+router.put('/batch/:id', showCtrl.batch.update);
+router.delete('/batch/:id', showCtrl.batch.delete);
 
 module.exports = router;
