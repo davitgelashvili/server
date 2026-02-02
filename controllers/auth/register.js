@@ -5,6 +5,7 @@ const crypto = require('crypto');
 const { pool } = require('../../db');
 
 const fs = require('fs')
+const path = require('path')
 
 const {
     signAccessToken,
@@ -36,6 +37,7 @@ async function createUniqueUserId() {
 async function register(req, res) {
     try {
         const { email, fullname, password, link, cover, status } = req.body;
+        
         const avatar = req.file; //მულტერი რექვესტიდან იღებს ავატარის ფოტოს როგორც ფაილს
 
         if (!isEmail(email))
@@ -59,15 +61,15 @@ async function register(req, res) {
 
         await pool.execute(
             `INSERT INTO users (user_id, email, fullname, password_hash, link, cover, status)
-       VALUES (?, ?, ?, ?, ?, ?)`,
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
             [
                 userId,
-                email,
+                email, 
                 fullname.trim(),
                 passwordHash,
                 link || null,
                 cover || null,
-                status || null
+                status || 'Visitor'
             ]
         );
 
@@ -118,6 +120,7 @@ async function register(req, res) {
             }//როდესაც ყველა ინფორმაცია ვალიდური იქნება ფრონტენდზე დავაბრუნებთ ამ მონაცემებს
         });
     } catch (err) {
+        console.log(err)
         return res.status(500).json({ success: false, message: 'Server error' });
     }
 }
