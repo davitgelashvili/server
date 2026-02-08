@@ -17,6 +17,7 @@ const PORT = process.env.PORT || 5000;
 const NODE_ENV = process.env.NODE_ENV || 'development';
 
 // React origins (dev + prod)
+
 const ALLOWED_ORIGINS = process.env.ALLOWED_ORIGINS.split(',')
 
 // CORS options
@@ -46,6 +47,7 @@ app.use(morgan(NODE_ENV === 'production' ? 'combined' : 'dev'));
 
 app.get('/health', (req, res) => res.json({ status: 'OK' }));
 app.use('/api', routes);
+
 
 app.use((err, req, res, next) => {
   if (err && err.message === 'Not allowed by CORS') {

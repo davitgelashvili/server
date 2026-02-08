@@ -17,7 +17,7 @@ router.use('/auth', authRoutes);
 //dashboard apis
 router.use('/v1', eventRoutes); //API ტიკეტები ან ბილეთები ჯისთვის
 // (დავამატოთ ვ2 ვერსია აქ მეორე საიტისტვის (tkt.ge || biletebi.ge-სთვის მორგებული))
-router.use('/dashboard', dashboardRoutes) //API ჩვენი პლატფორმისთვის
+router.use('/dashboard', dashboardRoutes) //რაუტი ჩვენი პლატფორმისთვის
 
 
 // export api
