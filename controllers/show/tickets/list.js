@@ -1,7 +1,6 @@
-const tickets = require(".")
+'use strict';
+
 const { pool } = require("../../../db")
-
-
 
 module.exports = async (req,res) => {
     try{

@@ -1,3 +1,4 @@
+'use strict';
 const { pool } = require("../../../db");
 
 
