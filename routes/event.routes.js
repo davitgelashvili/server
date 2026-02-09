@@ -21,7 +21,7 @@ router.get('/event/:id', showCtrl.event.getById);
 router.get('/event/:event_id/batch', showCtrl.batch.list);
 
 // TICKETS
-router.post('/event/:event_id/buy_ticket' , showCtrl.tickets.add)
-router.delete('/event/:event_id/refund_ticket' , showCtrl.tickets.remove)
+router.post('/event/:event_id/buy_ticket' , showCtrl.tickets.add);
+router.delete('/event/:event_id/refund_ticket' , showCtrl.tickets.remove);
 
 module.exports = router;
