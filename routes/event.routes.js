@@ -3,11 +3,11 @@
 const express = require('express');
 const router = express.Router();
 
-const { requireAuth } = require('../middlewares/auth.middleware');
+const tktApiKey = require('../middlewares/tktApiKey')
 const showCtrl = require('../controllers/show');
 
 // 🔐 ყველაფერი ქვემოთ დაცულია
-router.use(requireAuth);
+router.use(tktApiKey);
 
 // HUD
 router.get('/hud', showCtrl.hud.list);

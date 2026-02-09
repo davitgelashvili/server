@@ -5,7 +5,7 @@ const { pool } = require("../../../db");
 module.exports = async (req, res) => {
 
     const { user , amount, ticketId ,batchId, eventId} = req.body; //TODO:::მომავალში დავამათოთ სხვა ინფორმაციის დაფეტჩვა როცა ზუსტი პარამეტრები გვეცოდინება აპის
-    const origin = req.headers.origin ?? '';
+    const origin = req.headers.origin ?? 'http://localhost';
 
     const getPlatform = (origin) => {
         if (origin.includes('tkt.ge')) return 'tkt.ge';

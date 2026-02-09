@@ -66,6 +66,7 @@ async function login(req, res) {
             }
         });
     } catch (e) {
+        console.log(e)
         return res.status(500).json({ success: false, message: 'Server error' });
     }
 }
