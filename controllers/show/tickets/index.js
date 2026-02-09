@@ -4,5 +4,5 @@ module.exports = {
     add: require('./add'),
     list: require('./list'),
     getById: require('./getById'),
-    // remove : require('./remove')
+    remove : require('./remove')
 };
