@@ -5,4 +5,5 @@ module.exports = {
     list: require('./list'),
     getById: require('./getById'),
     update: require('./update'),
+    delete: require('./delete'),
 };

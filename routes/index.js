@@ -14,8 +14,9 @@ const clientRoutes = require('./client.routes');
 router.use('/auth', authRoutes);
 
 //saller client apis
-router.use('/v1', eventRoutes); //API ტიკეტები ან ბილეთები ჯისთვის
+// router.use('/v1', eventRoutes); //API ტიკეტები ან ბილეთები ჯისთვის
 // (დავამატოთ ვ2 ვერსია აქ მეორე საიტისტვის (tkt.ge || biletebi.ge-სთვის მორგებული))
+
 router.use('/dashboard', dashboardRoutes) //რაუტი ჩვენი პლატფორმისთვის
 
 
