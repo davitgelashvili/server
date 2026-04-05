@@ -22,8 +22,15 @@ function generateBatchId() {
     return 'b_' + id.slice(0, 5);
 }
 
+// Ticket: t_XXXXX
+function generateTicketId() {
+    const id = crypto.randomBytes(3).toString('hex');
+    return 't_' + id.slice(0, 5);
+}
+
 module.exports = {
     generateHudId,
     generateEventId,
     generateBatchId,
+    generateTicketId,
 };

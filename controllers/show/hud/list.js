@@ -9,16 +9,21 @@ module.exports = async (req, res) => {
         const [rows] = await pool.query(
             `
       SELECT 
-          id,
-          title,
-          slug,
-          description,
-          cover,
-          start_datetime,
-          end_datetime,
-          DATEDIFF(end_datetime, start_datetime) + 1 AS duration_days
-      FROM show_hud
-      WHERE user_id = ?
+          h.id,
+          h.title,
+          h.slug,
+          h.description,
+          h.cover,
+          h.start_datetime,
+          h.end_datetime,
+          DATEDIFF(h.end_datetime, h.start_datetime) + 1 AS duration_days,
+          COUNT(t.id) AS ticket_count
+      FROM show_hud h
+      LEFT JOIN show_event e ON e.hud_id = h.id
+      LEFT JOIN show_batch b ON b.event_id = e.id
+      LEFT JOIN tickets t ON t.batch_id = b.id
+      WHERE h.user_id = ?
+      GROUP BY h.id
       `,
             [userId]
         );

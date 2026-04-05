@@ -1,45 +1,58 @@
 'use strict';
-const { pool } = require("../../../db");
 
+const { pool } = require('../../../db');
+const { generateTicketId } = require('../../../utils/generateId');
 
 module.exports = async (req, res) => {
+    try {
+        const { userId } = req.user; // auth middleware–დან
+        const { buyer_name, status, buyer_id, batch_id, event_id, hud_id } = req.body;
 
-    const { user , amount, ticketId ,batchId, eventId} = req.body; //TODO:::მომავალში დავამათოთ სხვა ინფორმაციის დაფეტჩვა როცა ზუსტი პარამეტრები გვეცოდინება აპის
-    const origin = req.headers.origin ?? 'http://localhost';
+        if (!buyer_name || !status || !buyer_id || !batch_id || !event_id || !hud_id) {
+            return res.status(400).json({ success: false, message: 'Required fields missing: buyer_name, status, buyer_id, batch_id, event_id, hud_id' });
+        }
 
-    const getPlatform = (origin) => {
-        if (origin.includes('tkt.ge')) return 'tkt.ge';
-        if (origin.includes('biletebi.ge')) return 'biletebi.ge';
-        if (origin.includes('localhost')) return 'dev';
-        return null;
-    };
+        // Ownership check: batch უნდა იყოს current user-ის HUD/Event-ში
+        const [batchRows] = await pool.query(`
+            SELECT b.id, b.capacity, b.sold_count
+            FROM show_batch b
+            JOIN show_event e ON b.event_id = e.id
+            JOIN show_hud h ON e.hud_id = h.id
+            WHERE b.id = ? AND e.id = ? AND h.id = ? AND h.user_id = ?
+        `, [batch_id, event_id, hud_id, userId]);
 
-    const platform = getPlatform(origin); //გვიმოწმებს რომელი პლატფორმიდან იყიდის კლიენტი ბილეთს
+        if (!batchRows.length) {
+            return res.status(404).json({ success: false, message: 'Batch not found or access denied' });
+        }
 
-    if (!platform) {return res.status(403).json({success: false,message: 'Forbidden'});}
+        const { capacity, sold_count } = batchRows[0];
 
-    try{
+        if (sold_count + 1 > capacity) {
+            return res.status(400).json({ success: false, message: 'Not enough tickets available' });
+        }
 
-        const soldAt = new Date().toISOString().slice(0, 19).replace('T', ' '); //იღებს ზუსტ თარიღს როდისაა ბილეთი ნაყიდი
+        // Generate ticket_id
+        const ticketId = generateTicketId();
 
-        const [batchRows] = await pool.query(`select capacity, sold_count from show_batch where id = ? for update`,[batchId]);
-        if (batchRows.length === 0) {return res.status(404).json({success: false,message: 'Batch not found'})}
+        const soldAt = new Date().toISOString().slice(0, 19).replace('T', ' ');
 
-        const {capacity, sold_count} = batchRows[0]; 
+        // Insert ticket
+        await pool.query(`
+            INSERT INTO tickets (ticket_id, event_id, buyer_id, status, amount, sold_at, platform, batch_id)
+            VALUES (?, ?, ?, ?, 1, ?, 'manual', ?)
+        `, [ticketId, event_id, buyer_id, status, soldAt, batch_id]);
 
-        if (sold_count + amount > capacity) {return res.status(400).json({success: false,message: 'Not enough tickets'});} // გვიბრუნებს ერრორს თუ საკმარისი ბილეთები არ არის ხელმისაწვდომი
+        // Update sold_count
+        await pool.query('UPDATE show_batch SET sold_count = sold_count + 1 WHERE id = ?', [batch_id]);
 
-        const [isAlreadyBooked] = await pool.query('select * from tickets where ticket_id = ? and event_id = ? and batch_id = ? and buyer_id = ? limit 1', [ticketId, eventId, batchId, user])
-        if(isAlreadyBooked.length !== 0)return res.status(400).json({success : false, message : 'You Have already Bought Tickets In This Batch'}) //გვიბრუნებს ერორს ტუ უკვე იუზრის ბილეთი ნაყიდი აქვს
+        res.json({
+            success: true,
+            ticket_id: ticketId,
+            message: 'Ticket issued successfully'
+        });
 
-        await pool.query('insert into tickets (ticket_id, event_id, buyer_id, status, amount, sold_at, platform) values (?, ?, ?, ?, ?, ?, ?)' , [ticketId, eventId,user, 'valid' , amount, soldAt,platform ])
-        await pool.query(`update show_batch set sold_count = sold_count + ? where id = ?`,[amount, batchId]); //აფდეითდება ბატჩში გაყიდული ბილეტების რაოდენობა
-        
-        return res.status(200).json({success : true, message : 'Tickets Bought Successfully'})
-
-        
-    }catch(err){
+    } catch (err) {
         console.error(err);
-        return res.status(500).json({success: false,message: 'Server error'});
+        res.status(500).json({ success: false, message: 'Server error' });
     }
-}
+};

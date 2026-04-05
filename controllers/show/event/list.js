@@ -15,8 +15,10 @@ module.exports = async (req, res) => {
         }
 
         const sql = `
-            SELECT e.*
+            SELECT e.*, COUNT(t.id) AS ticket_count
             FROM show_event e
+            LEFT JOIN show_batch b ON b.event_id = e.id
+            LEFT JOIN tickets t ON t.batch_id = b.id
             WHERE e.hud_id = ?
               AND EXISTS (
                   SELECT 1
@@ -24,6 +26,7 @@ module.exports = async (req, res) => {
                   WHERE h.id = ?
                     AND h.user_id = ?
               )
+            GROUP BY e.id
             ORDER BY e.start_datetime ASC
         `;
 

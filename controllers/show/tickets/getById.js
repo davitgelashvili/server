@@ -1,19 +1,28 @@
 'use strict';
 
-const { pool } = require("../../../db");
+const { pool } = require('../../../db');
 
-module.exports = async(req,res) => {
+module.exports = async (req, res) => {
+    try {
+        const { event_id, id } = req.params;
 
-    const { id } = req.params;
+        if (!event_id || !id) {
+            return res.status(400).json({ success: false, message: 'event_id and ticket id are required' });
+        }
 
-    try{
+        const [rows] = await pool.query('SELECT * FROM tickets WHERE id = ? AND event_id = ?', [id, event_id]);
 
-        const [ticket] = await pool.query('select * from tickets where event_id = ?' , [id])
-        if(ticket.length === 0) return res.status(204).json({success : false , message : 'No Tickets Found'}) 
+        if (!rows.length) {
+            return res.status(404).json({ success: false, message: 'Ticket not found' });
+        }
 
-        return res.status(200).json({success: true, message : ticket}) //გვიბრუნებს ბილეთებს აიდის მიხედვით
+        res.json({
+            success: true,
+            ticket: rows[0]
+        });
 
-    }catch(err){
-        return res.status(500).json({success: false, message : 'Server Error'})
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false, message: 'Server error' });
     }
-}
+};

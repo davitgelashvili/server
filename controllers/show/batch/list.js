@@ -28,10 +28,12 @@ module.exports = async (req, res) => {
 
         // ბატჩების წამოღება event-ის მიხედვით
         const [batches] = await pool.query(`
-            SELECT *
-            FROM show_batch
-            WHERE event_id = ?
-            ORDER BY name ASC
+            SELECT b.*, COUNT(t.id) AS ticket_count
+            FROM show_batch b
+            LEFT JOIN tickets t ON t.batch_id = b.id
+            WHERE b.event_id = ?
+            GROUP BY b.id
+            ORDER BY b.name ASC
         `, [event_id]);
 
         res.json({ success: true, batches });

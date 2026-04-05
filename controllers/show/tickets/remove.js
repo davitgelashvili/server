@@ -1,22 +1,39 @@
-const { pool } = require("../../../db")
+'use strict';
 
-module.exports = async(req,res) => {
+const { pool } = require('../../../db');
 
-    const {user, amount, ticketId, eventId, batchId} = req.body
+module.exports = async (req, res) => {
+    try {
+        const { event_id } = req.params;
+        const { ticket_id } = req.body;
 
-    try{
+        if (!ticket_id || !event_id) {
+            return res.status(400).json({ success: false, message: 'ticket_id and event_id are required' });
+        }
 
-        const [ticket] = await pool.query('select * from tickets join show_batch on tickets.batch_id = show_batch.id where buyer_id = ? and event_id = ? and ticket_id = ? and batch_id = ?', [user, eventId , ticketId, batchId])
-        if(ticket.length === 0) return res.status(404).json({success: false , message : "Ticket Not Found"}) //გვიმოწმებს თუ იუზერს აქვს ბილეთი ნაყიდი რომ დარეფანდდეს
+        // Get ticket info
+        const [ticketRows] = await pool.query('SELECT * FROM tickets WHERE ticket_id = ? AND event_id = ?', [ticket_id, event_id]);
 
-        await pool.query('update tickets where buyer_id = ? and event_id = ? and ticket_id = ? set status = ?', [user, eventId , ticketId, 'refunded'])//გვიაფდეითებს ბილეთის სტატუს
-        const [updatedBatch] = await pool.query(`update show_batch set sold_count = sold_count - ? where batch_id = ? and event_id = ? and sold_count >= ?`,[amount, batchId, eventId, amount]); // ბატჩიდან გაყიდული ბილეთების რაოდენობას აკლდება, 
-        if (updatedBatch.affectedRows === 0) {return res.status(400).json({success : false , message : "Could Not Refund Tickets"})}  //ბრუნება ერორი თუ ვერ მოხდერხდა ბილეეთყის დარეფანდება
+        if (!ticketRows.length) {
+            return res.status(404).json({ success: false, message: 'Ticket not found' });
+        }
 
-        return res.status(200).json({success : true, message : "Ticket Refuned"})
+        const ticket = ticketRows[0];
+        const amount = ticket.amount || 1;
 
-    }catch(err){
-        console.error(err)
-        return res.status(500).json({success : false , message : 'Server Error'})
+        // Delete ticket
+        await pool.query('DELETE FROM tickets WHERE ticket_id = ?', [ticket_id]);
+
+        // Update sold_count
+        await pool.query('UPDATE show_batch SET sold_count = sold_count - ? WHERE id = ?', [amount, ticket.batch_id]);
+
+        res.json({
+            success: true,
+            message: 'Ticket refunded successfully'
+        });
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false, message: 'Server error' });
     }
-}
+};

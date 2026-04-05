@@ -33,9 +33,10 @@ router.delete('/batch/:id', showCtrl.batch.delete);
 router.get('/batch/:id', showCtrl.batch.getById);
 
 // TICKETS
+router.get('/ticket', showCtrl.tickets.list);
+router.post('/ticket', showCtrl.tickets.add);
 
-router.post('/event/:event_id/buy_ticket' , showCtrl.tickets.add);
-router.get('/event/:event_id/tickets' , showCtrl.tickets.list);
-router.get('/event/:event_id/tickets/:id' , showCtrl.tickets.getById);
+// STATS
+router.get('/stats', showCtrl.stats.get);
 
 module.exports = router;
