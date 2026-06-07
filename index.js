@@ -54,7 +54,7 @@ app.get('/health', (req, res) => res.json({ status: 'OK' }));
 app.use('/api', routes);
 
 app.use(express.static(DIST));
-app.get(/^(?!\/api).*/, (req, res) => res.sendFile(path.join(DIST, 'index.html')));
+app.get('*', (req, res) => res.sendFile(path.join(DIST, 'index.html')));
 
 app.use((err, req, res, next) => {
   if (err && err.message === 'Not allowed by CORS') {
