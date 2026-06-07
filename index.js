@@ -11,6 +11,7 @@ const compression = require('compression');
 const rateLimit = require('express-rate-limit');
 const cookieParser = require('cookie-parser');
 
+const path   = require('path');
 const routes = require('./routes');
 const { createWsServer } = require('./utils/ws');
 
@@ -47,9 +48,13 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(morgan(NODE_ENV === 'production' ? 'combined' : 'dev'));
 
+const DIST = path.join(__dirname, '../front/dist');
+
 app.get('/health', (req, res) => res.json({ status: 'OK' }));
 app.use('/api', routes);
 
+app.use(express.static(DIST));
+app.get(/^(?!\/api).*/, (req, res) => res.sendFile(path.join(DIST, 'index.html')));
 
 app.use((err, req, res, next) => {
   if (err && err.message === 'Not allowed by CORS') {
@@ -58,8 +63,6 @@ app.use((err, req, res, next) => {
   console.error(err);
   return res.status(500).json({ success: false, message: 'Server error' });
 });
-
-app.use((req, res) => res.status(404).json({ success: false, message: 'Route not found' }));
 
 const server = http.createServer(app);
 createWsServer(server);
