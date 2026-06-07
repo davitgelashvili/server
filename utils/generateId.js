@@ -28,9 +28,15 @@ function generateTicketId() {
     return 't_' + id.slice(0, 5);
 }
 
+// Buyer: buy_XXXXXXXX
+function generateBuyerId() {
+    return 'buy_' + crypto.randomBytes(4).toString('hex');
+}
+
 module.exports = {
     generateHudId,
     generateEventId,
     generateBatchId,
     generateTicketId,
+    generateBuyerId,
 };

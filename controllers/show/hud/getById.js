@@ -8,9 +8,16 @@ module.exports = async (req, res) => {
         const { id } = req.params;
 
         const [rows] = await pool.query(
-            `SELECT id, title, slug, description, cover, start_datetime, end_datetime, created_at, updated_at
-             FROM show_hud
-             WHERE id = ? AND user_id = ?`,
+            `SELECT h.id, h.title, h.slug, h.description, h.cover, h.start_datetime, h.end_datetime,
+                    h.requires_verification, h.max_tickets_per_buyer, h.created_at, h.updated_at,
+                    (SELECT MIN(b.price) FROM show_batch b JOIN show_event e ON e.id=b.event_id
+                     WHERE e.hud_id=h.id AND e.start_datetime=(SELECT MIN(start_datetime) FROM show_event WHERE hud_id=h.id)
+                    ) AS first_day_min_price,
+                    (SELECT MAX(b.price) FROM show_batch b JOIN show_event e ON e.id=b.event_id
+                     WHERE e.hud_id=h.id AND e.start_datetime=(SELECT MAX(start_datetime) FROM show_event WHERE hud_id=h.id)
+                    ) AS last_day_max_price
+             FROM show_hud h
+             WHERE h.id = ? AND h.user_id = ?`,
             [id, userId]
         );
 
@@ -23,15 +30,10 @@ module.exports = async (req, res) => {
         res.json({
             success: true,
             hud: {
-                id: hud.id,
-                title: hud.title,
-                slug: hud.slug || null,
+                ...hud,
                 description: hud.description || '',
+                slug: hud.slug || null,
                 cover: hud.cover || null,
-                start_datetime: hud.start_datetime,
-                end_datetime: hud.end_datetime,
-                created_at: hud.created_at,
-                updated_at: hud.updated_at
             }
         });
     } catch (err) {

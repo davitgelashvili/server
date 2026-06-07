@@ -16,12 +16,27 @@ module.exports = async (req, res) => {
           h.cover,
           h.start_datetime,
           h.end_datetime,
+          h.status,
+          h.requires_verification,
+          h.max_tickets_per_buyer,
           DATEDIFF(h.end_datetime, h.start_datetime) + 1 AS duration_days,
-          COUNT(t.id) AS ticket_count
+          COUNT(DISTINCT e.id) AS event_count,
+          COUNT(DISTINCT b.id) AS batch_count,
+          (
+              SELECT MIN(b2.price) FROM show_batch b2
+              JOIN show_event e2 ON e2.id = b2.event_id
+              WHERE e2.hud_id = h.id
+                AND e2.start_datetime = (SELECT MIN(start_datetime) FROM show_event WHERE hud_id = h.id)
+          ) AS first_day_min_price,
+          (
+              SELECT MAX(b2.price) FROM show_batch b2
+              JOIN show_event e2 ON e2.id = b2.event_id
+              WHERE e2.hud_id = h.id
+                AND e2.start_datetime = (SELECT MAX(start_datetime) FROM show_event WHERE hud_id = h.id)
+          ) AS last_day_max_price
       FROM show_hud h
       LEFT JOIN show_event e ON e.hud_id = h.id
       LEFT JOIN show_batch b ON b.event_id = e.id
-      LEFT JOIN tickets t ON t.batch_id = b.id
       WHERE h.user_id = ?
       GROUP BY h.id
       `,

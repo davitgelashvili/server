@@ -4,26 +4,27 @@ const express = require('express');
 const router = express.Router();
 
 const authRoutes = require('./auth.routes');
-const eventRoutes = require('./event.routes');
-const dashboardRoutes = require('./dashboard.routes')
+const panelRoutes = require('./panel.routes');
+const dashboardRoutes = require('./dashboard.routes');
 const exportRoutes = require('./export.routes');
-const clientRoutes = require('./client.routes');
+const testRoutes   = require('./test.routes');
 
-
-//login api
+// auth
 router.use('/auth', authRoutes);
 
-//saller client apis
-// router.use('/v1', eventRoutes); //API ტიკეტები ან ბილეთები ჯისთვის
-// (დავამატოთ ვ2 ვერსია აქ მეორე საიტისტვის (tkt.ge || biletebi.ge-სთვის მორგებული))
+// client panel — authenticated user sees their own data
+router.use('/panel', panelRoutes);
 
-router.use('/dashboard', dashboardRoutes) //რაუტი ჩვენი პლატფორმისთვის
-
+// admin dashboard — admin only, sees all users' data
+router.use('/dashboard', dashboardRoutes);
 
 // export api
 router.use('/export', exportRoutes);
 
-// second site (client) api
-router.use('/client', clientRoutes);
+// test site
+router.use('/test', testRoutes);
+
+// public — no auth required (third-party calls)
+router.post('/verification/request', require('../controllers/public/verificationRequest'));
 
 module.exports = router;

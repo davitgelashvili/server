@@ -6,7 +6,7 @@ module.exports = async (req, res) => {
     try {
         const { userId } = req.user; // auth middleware–დან
         const { id } = req.params;
-        const { name, price, capacity } = req.body;
+        const { name, price, capacity, is_active } = req.body;
 
         if (!id) return res.status(400).json({ success: false, message: 'Batch id is required' });
 
@@ -25,18 +25,23 @@ module.exports = async (req, res) => {
 
         const batch = rows[0];
 
-        const sql = `
-            UPDATE show_batch
-            SET name = ?, price = ?, capacity = ?, updated_at = NOW()
-            WHERE id = ?
-        `;
+        if (is_active === 1 || is_active === true || is_active === '1') {
+            await pool.query(
+                'UPDATE show_batch SET is_active = 0 WHERE event_id = ? AND id != ?',
+                [batch.event_id, id]
+            );
+        }
 
-        await pool.query(sql, [
-            name || batch.name,
-            price != null ? price : batch.price,
-            capacity != null ? capacity : batch.capacity,
-            id
-        ]);
+        await pool.query(
+            `UPDATE show_batch SET name=?, price=?, capacity=?, is_active=?, updated_at=NOW() WHERE id=?`,
+            [
+                name     ?? batch.name,
+                price    != null ? price    : batch.price,
+                capacity != null ? capacity : batch.capacity,
+                is_active != null ? (is_active ? 1 : 0) : batch.is_active,
+                id
+            ]
+        );
 
         res.json({ success: true, message: 'Batch updated successfully' });
 

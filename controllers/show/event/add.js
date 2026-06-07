@@ -17,8 +17,8 @@ module.exports = async (req, res) => {
         // Event insert
         await pool.query(
             `INSERT INTO show_event
-             (id, hud_id, title, description, start_datetime, end_datetime, min_price, max_price, created_at, updated_at)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
+             (id, hud_id, title, description, start_datetime, end_datetime, min_price, max_price, status, created_at, updated_at)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending', NOW(), NOW())`,
             [id, hud_id, title, description || '', start_datetime, end_datetime, min_price || 0, max_price || 0]
         );
 

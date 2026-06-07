@@ -15,10 +15,12 @@ module.exports = async (req, res) => {
         }
 
         const sql = `
-            SELECT e.*, COUNT(t.id) AS ticket_count
+            SELECT e.*,
+                COUNT(DISTINCT b.id) AS batch_count,
+                MIN(b.price)         AS min_price,
+                MAX(b.price)         AS max_price
             FROM show_event e
             LEFT JOIN show_batch b ON b.event_id = e.id
-            LEFT JOIN tickets t ON t.batch_id = b.id
             WHERE e.hud_id = ?
               AND EXISTS (
                   SELECT 1

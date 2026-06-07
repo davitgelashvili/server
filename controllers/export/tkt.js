@@ -1,7 +1,5 @@
-const hudList = require('./hudList');
+const hudList    = require('./hudList');
 const hudDetails = require('./hudDetails');
+const eventDetail = require('./eventDetail');
 
-module.exports = {
-    hudList,
-    hudDetails
-};
+module.exports = { hudList, hudDetails, eventDetail };

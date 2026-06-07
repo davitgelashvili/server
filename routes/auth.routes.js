@@ -19,5 +19,6 @@ router.post('/logout', auth.logout);
 
 // Protected
 router.get('/me', requireAuth, auth.me);
+router.put('/me', requireAuth, auth.updateMe);
 
 module.exports = router;

@@ -26,13 +26,17 @@ module.exports = async (req, res) => {
 
         const id = generateBatchId();
 
-        const sql = `
-            INSERT INTO show_batch
-                (id, event_id, name, price, capacity, sold_count, created_at, updated_at)
-            VALUES (?, ?, ?, ?, ?, 0, NOW(), NOW())
-        `;
+        const [[active]] = await pool.query(
+            'SELECT id FROM show_batch WHERE event_id = ? AND is_active = 1 LIMIT 1',
+            [event_id]
+        );
+        const isActive = active ? 0 : 1;
 
-        await pool.query(sql, [id, event_id, name, price, capacity]);
+        await pool.query(
+            `INSERT INTO show_batch (id, event_id, name, price, capacity, sold_count, is_active, created_at, updated_at)
+             VALUES (?, ?, ?, ?, ?, 0, ?, NOW(), NOW())`,
+            [id, event_id, name, price, capacity, isActive]
+        );
 
         res.json({
             success: true,

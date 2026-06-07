@@ -6,7 +6,7 @@ module.exports = async (req, res) => {
     try {
         const { userId } = req.user;
         const { id } = req.params;
-        const { title, slug, description, cover } = req.body;
+        const { title, slug, description, cover, requires_verification, max_tickets_per_buyer } = req.body;
 
         if (!title) {
             return res.status(400).json({ success: false, message: 'Title is required' });
@@ -14,9 +14,12 @@ module.exports = async (req, res) => {
 
         const [result] = await pool.query(
             `UPDATE show_hud
-       SET title = ?, slug = ?, description = ?, cover = ?
-       WHERE id = ? AND user_id = ?`,
-            [title, slug || null, description || null, cover || null, id, userId]
+             SET title=?, slug=?, description=?, cover=?, requires_verification=?, max_tickets_per_buyer=?
+             WHERE id=? AND user_id=?`,
+            [title, slug || null, description || null, cover || null,
+             requires_verification ? 1 : 0,
+             max_tickets_per_buyer ? parseInt(max_tickets_per_buyer) : null,
+             id, userId]
         );
 
         if (result.affectedRows === 0) {

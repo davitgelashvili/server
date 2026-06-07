@@ -5,6 +5,7 @@ const login = require('./login');
 const refresh = require('./refresh');
 const logout = require('./logout');
 const me = require('./me');
+const updateMe = require('./updateMe');
 
 module.exports = {
     register,
@@ -12,4 +13,5 @@ module.exports = {
     refresh,
     logout,
     me,
+    updateMe,
 };

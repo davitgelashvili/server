@@ -2,6 +2,7 @@
 
 require('dotenv').config();
 
+const http    = require('http');
 const express = require('express');
 const helmet = require('helmet');
 const cors = require('cors');
@@ -11,6 +12,7 @@ const rateLimit = require('express-rate-limit');
 const cookieParser = require('cookie-parser');
 
 const routes = require('./routes');
+const { createWsServer } = require('./utils/ws');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -59,4 +61,16 @@ app.use((err, req, res, next) => {
 
 app.use((req, res) => res.status(404).json({ success: false, message: 'Route not found' }));
 
-app.listen(PORT, () => console.log(`✅ API running on :${PORT} [${NODE_ENV}]`));
+const server = http.createServer(app);
+createWsServer(server);
+
+server.on('error', (err) => {
+    if (err.code === 'EADDRINUSE') {
+        console.error(`❌ Port ${PORT} already in use. Run: lsof -ti :${PORT} | xargs kill -9`);
+    } else {
+        console.error('HTTP server error:', err.message);
+    }
+    process.exit(1);
+});
+
+server.listen(PORT, () => console.log(`✅ API running on :${PORT} [${NODE_ENV}]`));
