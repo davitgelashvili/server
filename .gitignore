@@ -10,7 +10,7 @@ pnpm-debug.log*
 *.log
 
 # Env
-.env
+# .env
 .env.local
 .env.*.local
 
