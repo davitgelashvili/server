@@ -48,7 +48,15 @@ app.use('/api', (req, res) => res.status(404).json({ success: false, message: 'A
 app.options('/api/*path', cors(corsOptions));
 
 app.use(express.static(path.join(__dirname, './../front/dist')));
-app.use((req, res) => res.sendFile(path.join(__dirname, './../front/dist', 'index.html')));
+app.use((req, res) => {
+  console.log('CATCH-ALL:', req.method, req.url);
+  res.sendFile(path.join(__dirname, './../front/dist', 'index.html'), (err) => {
+    if (err) {
+      console.log('SENDFILE ERROR:', err.message);
+      res.status(500).json({ error: err.message });
+    }
+  });
+});
 
 app.use((err, req, res, next) => {
   console.error(err);
