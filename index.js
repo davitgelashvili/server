@@ -15,9 +15,9 @@ const { createWsServer } = require('./utils/ws');
 
 const htaccess = path.join(__dirname, '../.htaccess');
 const htaccessContent = `# DO NOT REMOVE. CLOUDLINUX PASSENGER CONFIGURATION BEGIN
-PassengerAppRoot /home/ophossdi/evn.ge/server
-PassengerBaseURI /
-PassengerNodejs /home/ophossdi/nodevenv/evn.ge/server/22/bin/node
+PassengerAppRoot "/home/ophossdi/evn.ge/server"
+PassengerBaseURI "/"
+PassengerNodejs "/home/ophossdi/nodevenv/evn.ge/server/22/bin/node"
 PassengerAppType node
 PassengerStartupFile index.js
 # DO NOT REMOVE. CLOUDLINUX PASSENGER CONFIGURATION END
