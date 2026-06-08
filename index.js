@@ -19,7 +19,7 @@ PassengerAppRoot /home/ophossdi/evn.ge/server
 PassengerBaseURI /
 PassengerNodejs /home/ophossdi/nodevenv/evn.ge/server/22/bin/node
 PassengerAppType node
-PassengerStartupFile app.js
+PassengerStartupFile index.js
 # DO NOT REMOVE. CLOUDLINUX PASSENGER CONFIGURATION END
 `;
 fs.writeFileSync(htaccess, htaccessContent, 'utf8');
