@@ -37,11 +37,6 @@ const corsOptions = {
 app.use(helmet());
 app.use(compression());
 app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 300 }));
-
-app.use(cors(corsOptions));
-
-app.options(/.*/, cors(corsOptions));
-
 app.use(cookieParser());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
@@ -49,12 +44,16 @@ app.use(express.urlencoded({ extended: true }));
 app.use(morgan(NODE_ENV === 'production' ? 'combined' : 'dev'));
 
 const DIST = path.join(__dirname, '../front/dist');
+console.log('📁 Serving frontend from:', DIST);
 
 app.get('/health', (req, res) => res.json({ status: 'OK' }));
-app.use('/api', routes);
+
+app.use('/api', cors(corsOptions), routes);
+app.use('/api', (req, res) => res.status(404).json({ success: false, message: 'API endpoint not found' }));
+app.options('/api/*path', cors(corsOptions));
 
 app.use(express.static(DIST));
-app.get('/*path', (req, res) => res.sendFile(path.join(DIST, 'index.html')));
+app.use((req, res) => res.sendFile(path.join(DIST, 'index.html')));
 
 app.use((err, req, res, next) => {
   if (err && err.message === 'Not allowed by CORS') {
