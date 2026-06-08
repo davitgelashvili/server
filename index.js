@@ -21,22 +21,13 @@ const NODE_ENV = process.env.NODE_ENV || 'production';
 
 // React origins (dev + prod)
 
-const ALLOWED_ORIGINS = process.env.ALLOWED_ORIGINS.split(',')
-
-// CORS options
 const corsOptions = {
-  origin: function (origin, cb) {
-    // allow tools like Postman/no-origin requests
-    if (!origin) return cb(null, true);
-    if (ALLOWED_ORIGINS.includes(origin)) return cb(null, true);
-    return cb(new Error('Not allowed by CORS'));
-  },
+  origin: true,
   credentials: true,
 };
 
-app.use(helmet());
+app.set('trust proxy', 1);
 app.use(compression());
-app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 300 }));
 app.use(cookieParser());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
@@ -44,7 +35,6 @@ app.use(express.urlencoded({ extended: true }));
 app.use(morgan(NODE_ENV === 'production' ? 'combined' : 'dev'));
 
 const DIST = path.join(__dirname, '../front/dist');
-console.log('📁 Serving frontend from:', DIST);
 
 app.get('/health', (req, res) => res.json({ status: 'OK' }));
 
@@ -56,9 +46,6 @@ app.use(express.static(DIST));
 app.use((req, res) => res.sendFile(path.join(DIST, 'index.html')));
 
 app.use((err, req, res, next) => {
-  if (err && err.message === 'Not allowed by CORS') {
-    return res.status(403).json({ success: false, message: 'CORS blocked' });
-  }
   console.error(err);
   return res.status(500).json({ success: false, message: 'Server error' });
 });
