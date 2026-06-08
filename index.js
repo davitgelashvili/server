@@ -9,8 +9,20 @@ const compression = require('compression');
 const cookieParser = require('cookie-parser');
 
 const path   = require('path');
+const fs     = require('fs');
 const routes = require('./routes');
 const { createWsServer } = require('./utils/ws');
+
+const htaccess = path.join(__dirname, '../.htaccess');
+const htaccessContent = `# DO NOT REMOVE. CLOUDLINUX PASSENGER CONFIGURATION BEGIN
+PassengerAppRoot /home/ophossdi/evn.ge/server
+PassengerBaseURI /
+PassengerNodejs /home/ophossdi/nodevenv/evn.ge/server/22/bin/node
+PassengerAppType node
+PassengerStartupFile app.js
+# DO NOT REMOVE. CLOUDLINUX PASSENGER CONFIGURATION END
+`;
+fs.writeFileSync(htaccess, htaccessContent, 'utf8');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
