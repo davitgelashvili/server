@@ -1,14 +1,11 @@
 'use strict';
 
-require('dotenv').config();
 
 const http    = require('http');
 const express = require('express');
-const helmet = require('helmet');
 const cors = require('cors');
 const morgan = require('morgan');
 const compression = require('compression');
-const rateLimit = require('express-rate-limit');
 const cookieParser = require('cookie-parser');
 
 const path   = require('path');
@@ -18,8 +15,6 @@ const { createWsServer } = require('./utils/ws');
 const app = express();
 const PORT = process.env.PORT || 5000;
 const NODE_ENV = process.env.NODE_ENV || 'production';
-
-// React origins (dev + prod)
 
 const corsOptions = {
   origin: true,
@@ -34,16 +29,14 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(morgan(NODE_ENV === 'production' ? 'combined' : 'dev'));
 
-const DIST = path.join(__dirname, '../front/dist');
-
 app.get('/health', (req, res) => res.json({ status: 'OK' }));
 
 app.use('/api', cors(corsOptions), routes);
 app.use('/api', (req, res) => res.status(404).json({ success: false, message: 'API endpoint not found' }));
 app.options('/api/*path', cors(corsOptions));
 
-app.use(express.static(DIST));
-app.use((req, res) => res.sendFile(path.join(DIST, 'index.html')));
+app.use(express.static(path.join(__dirname, './../front/dist')));
+app.use((req, res) => res.sendFile(path.join(__dirname, './../front/dist', 'index.html')));
 
 app.use((err, req, res, next) => {
   console.error(err);
