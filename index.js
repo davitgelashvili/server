@@ -28,8 +28,21 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const NODE_ENV = process.env.NODE_ENV || 'production';
 
+const allowedOrigins = [
+  'https://evn.ge',
+  'https://www.evn.ge',
+  'http://localhost:3000',
+  'http://localhost:3001',
+];
+
 const corsOptions = {
-  origin: true,
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
 };
 
