@@ -43,20 +43,19 @@ app.use(morgan(NODE_ENV === 'production' ? 'combined' : 'dev'));
 
 app.get('/health', (req, res) => res.json({ status: 'OK' }));
 
+app.use((req, res, next) => {
+  const accept = req.headers['accept'] || '';
+  const isApiCall = req.path.startsWith('/api') || req.path === '/health';
+  if (!isApiCall && accept.includes('text/html')) {
+    return res.status(403).send('Forbidden');
+  }
+  next();
+});
+
 app.use('/api', cors(corsOptions), routes);
 app.use('/api', (req, res) => res.status(404).json({ success: false, message: 'API endpoint not found' }));
 app.options('/api/*path', cors(corsOptions));
 
-app.use(express.static(path.join(__dirname, './../front/dist')));
-app.use((req, res) => {
-  console.log('CATCH-ALL:', req.method, req.url);
-  res.sendFile(path.join(__dirname, './../front/dist', 'index.html'), (err) => {
-    if (err) {
-      console.log('SENDFILE ERROR:', err.message);
-      res.status(500).json({ error: err.message });
-    }
-  });
-});
 
 app.use((err, req, res, next) => {
   console.error(err);
